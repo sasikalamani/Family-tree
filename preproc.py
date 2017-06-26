@@ -52,4 +52,7 @@ def data():
     for i in range(m):
         input_vectorsA[i] = input_vectors[i][0:24]
         input_vectorsB[i] = input_vectors[i][24:]
-    return(input_vectorsA, input_vectorsB, target_vectors)
+    return(input_vectorsA , input_vectorsB, target_vectors)
+
+
+
