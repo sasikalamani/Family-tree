@@ -35,10 +35,11 @@ relationship_mapping = \
 m = len(dataset_as_dict)
 
 # Encoding the dataset into input / target pairs as specified in the paper.
-input_vectors = np.zeros((m, 36))
-input_vectorsA = np.zeros((m, 24))
-input_vectorsB = np.zeros((m, 12))
-target_vectors = np.zeros((m, 24))
+input_vectors = np.zeros((m, 36), dtype='float64')
+input_vectorsA = np.zeros((m, 24), dtype='float64')
+input_vectorsB = np.zeros((m, 12), dtype='float64')
+target_vectors = np.zeros((m, 24), dtype = 'float64')
+target_vectors_f = np.zeros((m), dtype = 'int32')
 
 for i, tup in enumerate(dataset_as_dict.items()):
     input_ = tup[0]
@@ -52,7 +53,9 @@ def data():
     for i in range(m):
         input_vectorsA[i] = input_vectors[i][0:24]
         input_vectorsB[i] = input_vectors[i][24:]
-    return(input_vectorsA , input_vectorsB, target_vectors)
-
+        for j in range(24):
+            if(target_vectors[i][j] == 1.0):
+                target_vectors_f[i] = int(j)
+    return(input_vectorsA , input_vectorsB, target_vectors_f)
 
 

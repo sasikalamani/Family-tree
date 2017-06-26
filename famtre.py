@@ -149,7 +149,7 @@ class MLP(object):
         )
         self.hiddenLayerTop = HiddenLayer(
             rng = rng, 
-            input = T.stack([self.hiddenLayerL.output,self.hiddenLayerR.output]),
+            input = T.concatenate([self.hiddenLayerL.output,self.hiddenLayerR.output]),
             n_in = 12,
             n_out = 12,
             activation = T.tanh)
@@ -270,7 +270,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
         n_inA=24,
         n_inB=12,
         n_hidden=n_hidden,
-        n_out=12
+        n_out=24
     )
 
     # start-snippet-4
