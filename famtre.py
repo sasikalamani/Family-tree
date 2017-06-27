@@ -200,7 +200,7 @@ class MLP(object):
 
 
 def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
-             dataset='mnist.pkl.gz', batch_size=20, n_hidden=6):
+             dataset='mnist.pkl.gz', batch_size=4, n_hidden=6):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
     perceptron
@@ -251,6 +251,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
     n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size
     n_test_batches = test_set_x.get_value(borrow=True).shape[0] // batch_size
+    print(n_train_batches, n_valid_batches, n_test_batches)
 
     ######################
     # BUILD ACTUAL MODEL #
@@ -378,6 +379,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                 # compute zero-one loss on validation set
                 validation_losses = [validate_model(i) for i
                                      in range(n_valid_batches)]
+                #print(n_valid_batches)
                 this_validation_loss = np.mean(validation_losses)
 
                 #print(
@@ -391,6 +393,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                 #)
 
                 # if we got the best validation score until now
+                #if(1<2):
                 if this_validation_loss < best_validation_loss:
                     #improve patience if loss improvement is good enough
                     if (
