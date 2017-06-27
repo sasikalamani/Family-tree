@@ -36,10 +36,13 @@ m = len(dataset_as_dict)
 
 # Encoding the dataset into input / target pairs as specified in the paper.
 input_vectors = np.zeros((m, 36), dtype='float64')
-input_vectorsA = np.zeros((m, 24), dtype='float64')
-input_vectorsB = np.zeros((m, 12), dtype='float64')
+input_vectorsA = np.zeros((100, 24), dtype='float64')
+input_vectorsB = np.zeros((100, 12), dtype='float64')
 target_vectors = np.zeros((m, 24), dtype = 'float64')
-target_vectors_f = np.zeros((m), dtype = 'int32')
+target_vectors_f = np.zeros((100), dtype = 'int32')
+test_A = np.zeros((4, 24), dtype='float64')
+test_B = np.zeros((4, 12), dtype='float64')
+test_target = np.zeros((4), dtype = 'int32')
 
 for i, tup in enumerate(dataset_as_dict.items()):
     input_ = tup[0]
@@ -49,6 +52,14 @@ for i, tup in enumerate(dataset_as_dict.items()):
     for relative in target:
         target_vectors[i, person_mapping[relative]] = 1
 
+np.random.seed(2)
+
+test_set_ids = np.random.randint(m, size=4)
+test_set, test_set_f= input_vectors[test_set_ids, :], target_vectors[test_set_ids, :]
+input_vectors = np.delete(input_vectors, test_set_ids, 0)
+target_vectors = np.delete(target_vectors, test_set_ids, 0)
+m = len(input_vectors)
+
 def data():
     for i in range(m):
         input_vectorsA[i] = input_vectors[i][0:24]
@@ -56,6 +67,12 @@ def data():
         for j in range(24):
             if(target_vectors[i][j] == 1.0):
                 target_vectors_f[i] = int(j)
-    return(input_vectorsA , input_vectorsB, target_vectors_f)
-
+    for i in range(4):
+        test_A[i] = test_set[i][0:24]
+        test_B[i] = test_set[i][24:]
+        for j in range(24):
+            if(test_set_f[i][j] == 1.0):
+                test_target[i] = int(j)
+    return(input_vectorsA, input_vectorsB, target_vectors_f,
+        test_A, test_B, test_target)
 
