@@ -53,8 +53,9 @@ for i, tup in enumerate(dataset_as_dict.items()):
     for relative in target:
         target_vectors[i, person_mapping[relative]] = 1
 
+np.random.seed(2)
 
-test_set_ids = random.sample(range(m), 4)
+test_set_ids = np.random.randint(m, size=4)
 test_set, test_set_f= input_vectors[test_set_ids, :], target_vectors[test_set_ids, :]
 input_vectors = np.delete(input_vectors, test_set_ids, 0)
 target_vectors = np.delete(target_vectors, test_set_ids, 0)

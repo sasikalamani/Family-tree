@@ -248,10 +248,12 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     test_set_x, test_set_x1, test_set_y = (XoT, Xo2, yo1)
 
     # compute number of minibatches for training, validation and testing
-    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
-    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size
-    n_test_batches = test_set_x.get_value(borrow=True).shape[0] // batch_size
-    print(n_train_batches, n_valid_batches, n_test_batches)
+    n_train_batches = 1
+    #train_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_valid_batches = 1
+    #valid_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_test_batches = 1
+    #test_set_x.get_value(borrow=True).shape[0] // batch_size
 
     ######################
     # BUILD ACTUAL MODEL #
