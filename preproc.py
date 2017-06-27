@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import random
 
 # Reading in data
 relationship = []
@@ -52,9 +53,8 @@ for i, tup in enumerate(dataset_as_dict.items()):
     for relative in target:
         target_vectors[i, person_mapping[relative]] = 1
 
-np.random.seed(2)
 
-test_set_ids = np.random.randint(m, size=4)
+test_set_ids = random.sample(range(m), 4)
 test_set, test_set_f= input_vectors[test_set_ids, :], target_vectors[test_set_ids, :]
 input_vectors = np.delete(input_vectors, test_set_ids, 0)
 target_vectors = np.delete(target_vectors, test_set_ids, 0)
@@ -73,6 +73,7 @@ def data():
         for j in range(24):
             if(test_set_f[i][j] == 1.0):
                 test_target[i] = int(j)
+    print(test_target)
     return(input_vectorsA, input_vectorsB, target_vectors_f,
         test_A, test_B, test_target)
 
