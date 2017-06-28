@@ -152,14 +152,21 @@ class MLP(object):
             rng = rng, 
             input = T.concatenate([self.hiddenLayerL.output,self.hiddenLayerR.output],1),
             n_in = 12,
-            n_out = 12,
+            n_out = n_hidden,
+            activation = T.tanh)
+
+        self.hiddenLayerNew = HiddenLayer(
+            rng = rng, 
+            input = self.hiddenLayerTop.output,
+            n_in = n_hidden,
+            n_out = 6,
             activation = T.tanh)
 
         # The logistic regression layer gets as input the hidden units
         # of the hidden layer
         self.logRegressionLayer = LogisticRegression(
-            input=self.hiddenLayerTop.output,
-            n_in=12,
+            input=self.hiddenLayerNew.output,
+            n_in=6,
             n_out=n_out
         )
         # end-snippet-2 start-snippet-3
@@ -192,7 +199,7 @@ class MLP(object):
 
         # the parameters of the model are the parameters of the two layer it is
         # made out of
-        self.params = self.hiddenLayerR.params + self.logRegressionLayer.params
+        self.params = self.hiddenLayerR.params + self.logRegressionLayer.params + self.hiddenLayerL.params + self.hiddenLayerTop.params + self.hiddenLayerNew.params
         # end-snippet-3
 
         # keep track of model input
@@ -200,7 +207,7 @@ class MLP(object):
 
 
 def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
-             dataset='mnist.pkl.gz', batch_size=4, n_hidden=6):
+             dataset='mnist.pkl.gz', batch_size=20, n_hidden=12):
     """
     Demonstrate stochastic gradient descent optimization for a multilayer
     perceptron
@@ -233,9 +240,9 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     Xo = theano.shared(value=array, name='Xo')
     Xo1 = theano.shared(value=array2, name='Xo1')
     yo = theano.shared(value=output, name='yo')
-    XoT = theano.shared(value=testA, name='XoT')
-    Xo2 = theano.shared(value=testB, name='Xo2')
-    yo1 = theano.shared(value=testF, name='yo1')
+    #XoT = theano.shared(value=testA, name='XoT')
+    #Xo2 = theano.shared(value=testB, name='Xo2')
+    #yo1 = theano.shared(value=testF, name='yo1')
     #Xot = theano.shared(value=np.asarray(array, dtype='float64'), name='Xot')
     #yot = theano.shared(value=np.asarray(output, dtype = 'int32'), name='yot')
     #Xov = theano.shared(value=np.asarray(array, dtype='float64'), name='Xot')
@@ -244,16 +251,13 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
     #print(y)
 #    sys.exit()
     train_set_x, train_set_x1, train_set_y = (Xo, Xo1, yo)
-    valid_set_x, valid_set_x1, valid_set_y  = (XoT, Xo2, yo1)
-    test_set_x, test_set_x1, test_set_y = (XoT, Xo2, yo1)
+    valid_set_x, valid_set_x1, valid_set_y  = (Xo, Xo1, yo)
+    test_set_x, test_set_x1, test_set_y = (Xo, Xo1, yo)
 
     # compute number of minibatches for training, validation and testing
-    n_train_batches = 1
-    #train_set_x.get_value(borrow=True).shape[0] // batch_size
-    n_valid_batches = 1
-    #valid_set_x.get_value(borrow=True).shape[0] // batch_size
-    n_test_batches = 1
-    #test_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_valid_batches = valid_set_x.get_value(borrow=True).shape[0] // batch_size
+    n_test_batches = test_set_x.get_value(borrow=True).shape[0] // batch_size
 
     ######################
     # BUILD ACTUAL MODEL #
@@ -297,9 +301,9 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
         inputs=[index],
         outputs=classifier.errors(y),
         givens={
-            x: test_set_x[index * batch_size:(index + 1) * batch_size], 
-            x1: test_set_x1[index * batch_size:(index + 1) * batch_size], 
-            y: test_set_y[index * batch_size:(index + 1) * batch_size]
+            x: test_set_x[index * batch_size: (index + 1) * batch_size], 
+            x1: test_set_x1[index * batch_size: (index + 1) * batch_size], 
+            y: test_set_y[index * batch_size: (index + 1) * batch_size]
         }
     )
 
@@ -307,9 +311,9 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
         inputs=[index],
         outputs=classifier.errors(y),
         givens={
-            x: valid_set_x[index * batch_size:(index + 1) * batch_size],
-            x1: valid_set_x1[index * batch_size:(index + 1) * batch_size], 
-            y: valid_set_y[index * batch_size:(index + 1) * batch_size]
+            x: valid_set_x[index * batch_size: (index + 1) * batch_size],
+            x1: valid_set_x1[index * batch_size: (index + 1) * batch_size], 
+            y: valid_set_y[index * batch_size: (index + 1) * batch_size]
         }
     )
 
@@ -339,7 +343,7 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
         updates=updates,
         givens={
             x: train_set_x[index * batch_size: (index + 1) * batch_size],
-            x1: train_set_x1[index * batch_size:(index + 1) * batch_size], 
+            x1: train_set_x1[index * batch_size: (index + 1) * batch_size], 
             y: train_set_y[index * batch_size: (index + 1) * batch_size]
         }
     )
@@ -395,8 +399,8 @@ def test_mlp(learning_rate=0.01, L1_reg=0.00, L2_reg=0.0001, n_epochs=1000,
                 #)
 
                 # if we got the best validation score until now
-                #if(1<2):
-                if this_validation_loss < best_validation_loss:
+                if(1<2):
+                #if this_validation_loss < best_validation_loss:
                     #improve patience if loss improvement is good enough
                     if (
                         this_validation_loss < best_validation_loss *
