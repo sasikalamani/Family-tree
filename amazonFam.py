@@ -66,15 +66,15 @@ m = 1000
 
 n_h1 = int(sys.argv[1])
 n_h2 = int(sys.argv[2])
-n_h3 = int(sys.argv[3])
-print(n_h1, n_h2, n_h3)
+#n_h3 = int(sys.argv[3])
+print(n_h1, n_h2)
 # Initializing the weights
 weights = {
     'person_to_embed': np.random.rand(1936, n_h1) * 0.66 - 0.33,
 #    'relationship_to_embed': np.random.rand(12, 6) * 0.66 - 0.33,
     'embed_to_hidden': np.random.rand(n_h1+1, n_h2) * 0.66 - 0.33,
-    'hidden_to_embed': np.random.rand(n_h2+1, n_h3) * 0.66 - 0.33,
-    'embed_to_output': np.random.rand(n_h3 + 1, 2) * 0.66 - 0.33,
+    #'hidden_to_embed': np.random.rand(n_h2+1, n_h3) * 0.66 - 0.33,
+    'embed_to_output': np.random.rand(n_h2 + 1, 2) * 0.66 - 0.33,
 }
 
 # Change in weights for initial epoch (since we do not have values for t - 1)
@@ -100,42 +100,50 @@ def forward_prop():
 
     inputs_to_hidden_layer = \
         embedding_layer_state.dot(weights['embed_to_hidden'])
+
     hidden_layer_state = np.c_[np.ones((m, 1)), sigmoid(inputs_to_hidden_layer)]
 
-    inputs_to_output_embedding_layer = \
-        hidden_layer_state.dot(weights['hidden_to_embed'])
-    output_embedding_layer_state = \
-        np.c_[np.ones((m, 1)), inputs_to_output_embedding_layer]
+    # inputs_to_output_embedding_layer = \
+    #     hidden_layer_state.dot(weights['hidden_to_embed'])
+
+    # output_embedding_layer_state = \
+    #     np.c_[np.ones((m, 1)), inputs_to_output_embedding_layer]
 
     inputs_to_output_layer = \
-        output_embedding_layer_state.dot(weights['embed_to_output'])
+        hidden_layer_state.dot(weights['embed_to_output'])
+
     output_layer_state = sigmoid(inputs_to_output_layer)
-    return output_layer_state, output_embedding_layer_state, \
+    return output_layer_state, \
         hidden_layer_state, embedding_layer_state
 
-def back_prop(output_layer_state, output_embedding_layer_state,
+def back_prop(output_layer_state,
         hidden_layer_state, embedding_layer_state):
 
     gradient = {}
 
     delta_output_layer = output_layer_state - target_vectors
+    
     gradient['embed_to_output'] = \
-        output_embedding_layer_state.T.dot(delta_output_layer) / m
+        hidden_layer_state.T.dot(delta_output_layer) / m
 
     delta_output_embedding_layer = \
         delta_output_layer.dot(weights['embed_to_output'].T)[:, 1:]
-    gradient['hidden_to_embed'] = \
-        hidden_layer_state.T.dot(delta_output_embedding_layer) / m
+   
+    # gradient['hidden_to_embed'] = \
+    #     hidden_layer_state.T.dot(delta_output_embedding_layer) / m
 
-    deriv_hidden_layer = \
-        delta_output_embedding_layer.dot(weights['hidden_to_embed'].T)[:, 1:]
-    delta_hidden_layer =\
-        deriv_hidden_layer * hidden_layer_state[:, 1:] * (1 - hidden_layer_state[:, 1:])
+    # deriv_hidden_layer = \
+    #     delta_output_embedding_layer.dot(weights['hidden_to_embed'].T)[:, 1:]
+    
+    # delta_hidden_layer =\
+    #     deriv_hidden_layer * hidden_layer_state[:, 1:] * (1 - hidden_layer_state[:, 1:])
+    
     gradient['embed_to_hidden'] = \
-        embedding_layer_state.T.dot(delta_hidden_layer) / m
+        embedding_layer_state.T.dot(delta_output_embedding_layer) / m
 
     delta_embedding_layer = \
-        delta_hidden_layer.dot(weights['embed_to_hidden'].T)[:, 1:]
+        delta_output_embedding_layer.dot(weights['embed_to_hidden'].T)[:, 1:]
+    
     gradient['person_to_embed'] = \
         input_vectors.T.dot(delta_embedding_layer[:, :n_h1]) / m
     return gradient
@@ -146,6 +154,11 @@ def cost(output_layer_state):
 
 def sigmoid(ary):
     return 1 / (1 + np.exp(-ary))
+
+def tanh(ary):
+    nume = np.exp(ary) - np.exp(-ary)
+    denom = np.exp(ary) + np.exp(-ary)
+    return nume/denom
 
 def numerical_gradient():
     delta = 1e-4
@@ -194,7 +207,7 @@ def reset_weights():
         'person_to_embed': np.random.rand(1936, n_h1) * 0.66 - 0.33,
 #        'relationship_to_embed': np.random.rand(12, 6) * 0.66 - 0.33,
         'embed_to_hidden': np.random.rand(n_h1+1, n_h2) * 0.66 - 0.33,
-        'hidden_to_embed': np.random.rand(n_h2+1, n_h3) * 0.66 - 0.33,
+        #'hidden_to_embed': np.random.rand(n_h2+1, n_h3) * 0.66 - 0.33,
         'embed_to_output': np.random.rand(n_h3+1, 2) * 0.66 - 0.33,
     }
 
