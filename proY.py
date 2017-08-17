@@ -4,6 +4,7 @@ import numpy as np
 
 file = open("yeast.data", "r")
 
+#tokenize the floating point numbers
 inputs = [0]* 1484
 output = [0] * 1484
 count = 0
